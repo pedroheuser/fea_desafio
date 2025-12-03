@@ -1,0 +1,163 @@
+version: 2
+
+models:
+  - name: dim_produtos
+    description: "Dimensão de produtos com hierarquia completa (categoria → subcategoria → produto)"
+    columns:
+      - name: product_id
+        description: "ID único do produto"
+        tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Nome do produto"
+      - name: product_category_name
+        description: "Nome da categoria (ex: Bikes, Components)"
+      - name: product_subcategory_name
+        description: "Nome da subcategoria (ex: Mountain Bikes, Road Bikes)"
+      - name: list_price
+        description: "Preço de lista do produto"
+
+  - name: dim_clientes
+    description: "Dimensão de clientes (pessoas ou lojas)"
+    columns:
+      - name: customer_id
+        description: "ID único do cliente"
+        tests:
+          - unique
+          - not_null
+      - name: customer_type
+        description: "Tipo do cliente: 'Pessoa' ou 'Loja'"
+        tests:
+          - accepted_values:
+              values: ['Pessoa', 'Loja', 'Desconhecido']
+      - name: customer_name
+        description: "Nome do cliente (pessoa ou loja)"
+      - name: territory_id
+        description: "ID do território"
+
+  - name: dim_vendedores
+    description: "Dimensão de vendedores com informações de performance"
+    columns:
+      - name: salesperson_id
+        description: "ID único do vendedor"
+        tests:
+          - unique
+          - not_null
+      - name: salesperson_name
+        description: "Nome completo do vendedor"
+      - name: territory_id
+        description: "ID do território"
+      - name: sales_quota
+        description: "Quota de vendas"
+      - name: commission_pct
+        description: "Percentual de comissão"
+
+  - name: dim_territorios
+    description: "Dimensão de territórios de vendas"
+    columns:
+      - name: territory_id
+        description: "ID único do território"
+        tests:
+          - unique
+          - not_null
+      - name: territory_name
+        description: "Nome do território"
+      - name: territory_group
+        description: "Grupo do território (North America, Europe, Pacific)"
+      - name: country_region_name
+        description: "Nome do país/região"
+
+  - name: dim_locais
+    description: "Dimensão de endereços (cobrança e entrega)"
+    columns:
+      - name: address_id
+        description: "ID único do endereço"
+        tests:
+          - unique
+          - not_null
+      - name: city
+        description: "Cidade"
+      - name: state_province_name
+        description: "Nome do estado/província"
+      - name: country_region_name
+        description: "Nome do país/região"
+
+  - name: dim_motivo_venda
+    description: "Dimensão de motivos de venda"
+    columns:
+      - name: sales_reason_id
+        description: "ID único do motivo"
+        tests:
+          - unique
+          - not_null
+      - name: sales_reason_name
+        description: "Nome do motivo"
+      - name: sales_reason_type
+        description: "Tipo do motivo (Other, Promotion, Marketing)"
+
+  - name: dim_cartoes
+    description: "Dimensão de cartões de crédito (número mascarado)"
+    columns:
+      - name: creditcard_id
+        description: "ID único do cartão"
+        tests:
+          - unique
+          - not_null
+      - name: card_type
+        description: "Tipo do cartão"
+      - name: card_number_masked
+        description: "Número do cartão mascarado (últimos 4 dígitos)"
+
+  - name: dim_metodo_envio
+    description: "Dimensão de métodos de envio"
+    columns:
+      - name: ship_method_id
+        description: "ID único do método de envio"
+        tests:
+          - unique
+          - not_null
+      - name: ship_method_name
+        description: "Nome do método de envio"
+      - name: ship_base
+        description: "Custo base do envio"
+
+  - name: dim_ofertas
+    description: "Dimensão de ofertas especiais e promoções"
+    columns:
+      - name: special_offer_id
+        description: "ID único da oferta"
+        tests:
+          - unique
+          - not_null
+      - name: offer_description
+        description: "Descrição da oferta"
+      - name: discount_pct
+        description: "Percentual de desconto"
+      - name: offer_type
+        description: "Tipo da oferta"
+
+  - name: dim_datas
+    description: "Dimensão de calendário (datas de 2008 a 2014)"
+    columns:
+      - name: date_id
+        description: "ID da data no formato YYYYMMDD"
+        tests:
+          - unique
+          - not_null
+      - name: date_actual
+        description: "Data atual"
+        tests:
+          - unique
+          - not_null
+      - name: year_number
+        description: "Ano"
+      - name: month_number
+        description: "Mês (1-12)"
+      - name: quarter_number
+        description: "Trimestre (1-4)"
+      - name: day_of_week
+        description: "Dia da semana (1=Domingo, 7=Sábado)"
+      - name: is_weekend
+        description: "Flag indicando se é fim de semana"
+

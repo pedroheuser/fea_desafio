@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: fct_vendas
+    description: |
+      Tabela fato principal de vendas com grão de item do pedido.
+      Uma linha representa um item específico de um pedido de venda.
+    columns:
+      - name: sales_order_detail_id
+        description: "ID único do item do pedido (chave primária)"
+        tests:
+          - unique
+          - not_null
+      - name: sales_order_id
+        description: "ID do pedido de venda"
+        tests:
+          - not_null
+      - name: product_id
+        description: "ID do produto (FK → dim_produtos)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_produtos')
+              field: product_id
+      - name: customer_id
+        description: "ID do cliente (FK → dim_clientes)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_clientes')
+              field: customer_id
+      - name: salesperson_id
+        description: "ID do vendedor (FK → dim_vendedores, nullable)"
+        tests:
+          - relationships:
+              to: ref('dim_vendedores')
+              field: salesperson_id
+      - name: territory_id
+        description: "ID do território (FK → dim_territorios)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_territorios')
+              field: territory_id
+      - name: creditcard_id
+        description: "ID do cartão de crédito (FK → dim_cartoes, nullable)"
+        tests:
+          - relationships:
+              to: ref('dim_cartoes')
+              field: creditcard_id
+      - name: ship_method_id
+        description: "ID do método de envio (FK → dim_metodo_envio)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_metodo_envio')
+              field: ship_method_id
+      - name: bill_to_address_id
+        description: "ID do endereço de cobrança (FK → dim_locais)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_locais')
+              field: address_id
+      - name: ship_to_address_id
+        description: "ID do endereço de entrega (FK → dim_locais)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_locais')
+              field: address_id
+      - name: order_date_id
+        description: "ID da data do pedido (FK → dim_datas, formato YYYYMMDD)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_datas')
+              field: date_id
+      - name: due_date_id
+        description: "ID da data de vencimento (FK → dim_datas)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_datas')
+              field: date_id
+      - name: ship_date_id
+        description: "ID da data de envio (FK → dim_datas, nullable)"
+        tests:
+          - relationships:
+              to: ref('dim_datas')
+              field: date_id
+      - name: order_qty
+        description: "Quantidade pedida"
+        tests:
+          - not_null
+      - name: unit_price
+        description: "Preço unitário"
+        tests:
+          - not_null
+      - name: unit_price_discount
+        description: "Desconto unitário (decimal, ex: 0.1 = 10%)"
+      - name: line_total
+        description: "Total da linha calculado: order_qty * unit_price * (1 - unit_price_discount)"
+        tests:
+          - not_null
+      - name: special_offer_id
+        description: "ID da oferta especial (FK → dim_ofertas, nullable)"
+        tests:
+          - relationships:
+              to: ref('dim_ofertas')
+              field: special_offer_id
+      - name: order_subtotal
+        description: "Subtotal do pedido (desnormalizado do header)"
+      - name: order_tax_amt
+        description: "Imposto do pedido"
+      - name: order_freight
+        description: "Frete do pedido"
+      - name: order_total_due
+        description: "Total devido do pedido"
+      - name: order_status
+        description: "Status do pedido (1-5)"
+      - name: online_order_flag
+        description: "Flag indicando se é pedido online"
+
+  - name: fct_vendas_motivos
+    description: |
+      Tabela fato para tratar relação N:N entre pedidos e motivos de venda.
+      Um pedido pode ter múltiplos motivos.
+      Grão: (sales_order_id, sales_reason_id)
+    columns:
+      - name: sales_order_id
+        description: "ID do pedido de venda"
+        tests:
+          - not_null
+      - name: sales_reason_id
+        description: "ID do motivo de venda (FK → dim_motivo_venda)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_motivo_venda')
+              field: sales_reason_id
+

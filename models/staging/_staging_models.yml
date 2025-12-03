@@ -1,0 +1,292 @@
+version: 2
+
+models:
+  - name: stg_sales__salesorderheader
+    description: "Staging model para cabeçalho dos pedidos de venda"
+    columns:
+      - name: sales_order_id
+        description: "ID único do pedido de venda"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "ID do cliente"
+      - name: salesperson_id
+        description: "ID do vendedor (nullable)"
+      - name: territory_id
+        description: "ID do território de vendas"
+      - name: order_date
+        description: "Data do pedido"
+      - name: order_total_due
+        description: "Total devido do pedido"
+
+  - name: stg_sales__salesorderdetail
+    description: "Staging model para itens dos pedidos de venda"
+    columns:
+      - name: sales_order_detail_id
+        description: "ID único do item do pedido"
+        tests:
+          - unique
+          - not_null
+      - name: sales_order_id
+        description: "ID do pedido de venda"
+        tests:
+          - not_null
+          - relationships:
+              to: source('adventure_works', 'sales_salesorderheader')
+              field: salesorderid
+      - name: product_id
+        description: "ID do produto"
+        tests:
+          - not_null
+      - name: order_qty
+        description: "Quantidade pedida"
+        tests:
+          - not_null
+      - name: unit_price
+        description: "Preço unitário"
+        tests:
+          - not_null
+
+  - name: stg_sales__customer
+    description: "Staging model para clientes (pessoas ou lojas)"
+    columns:
+      - name: customer_id
+        description: "ID único do cliente"
+        tests:
+          - unique
+          - not_null
+      - name: person_id
+        description: "ID da pessoa (nullable - apenas para clientes pessoa)"
+      - name: store_id
+        description: "ID da loja (nullable - apenas para clientes loja)"
+      - name: territory_id
+        description: "ID do território"
+
+  - name: stg_sales__salesperson
+    description: "Staging model para vendedores"
+    columns:
+      - name: salesperson_id
+        description: "ID do vendedor (businessentityid)"
+        tests:
+          - unique
+          - not_null
+      - name: territory_id
+        description: "ID do território (nullable)"
+      - name: sales_quota
+        description: "Quota de vendas"
+      - name: commission_pct
+        description: "Percentual de comissão"
+
+  - name: stg_sales__salesterritory
+    description: "Staging model para territórios de vendas"
+    columns:
+      - name: territory_id
+        description: "ID único do território"
+        tests:
+          - unique
+          - not_null
+      - name: territory_name
+        description: "Nome do território"
+      - name: country_region_code
+        description: "Código do país/região"
+      - name: territory_group
+        description: "Grupo do território (North America, Europe, Pacific)"
+
+  - name: stg_sales__salesreason
+    description: "Staging model para motivos de venda"
+    columns:
+      - name: sales_reason_id
+        description: "ID único do motivo"
+        tests:
+          - unique
+          - not_null
+      - name: sales_reason_name
+        description: "Nome do motivo"
+      - name: sales_reason_type
+        description: "Tipo do motivo (Other, Promotion, Marketing)"
+
+  - name: stg_sales__salesorderheadersalesreason
+    description: "Staging model para relação N:N entre pedidos e motivos"
+    columns:
+      - name: sales_order_id
+        description: "ID do pedido"
+        tests:
+          - not_null
+      - name: sales_reason_id
+        description: "ID do motivo"
+        tests:
+          - not_null
+
+  - name: stg_sales__creditcard
+    description: "Staging model para cartões de crédito"
+    columns:
+      - name: creditcard_id
+        description: "ID único do cartão"
+        tests:
+          - unique
+          - not_null
+      - name: card_type
+        description: "Tipo do cartão (Vista, SuperiorCard, etc.)"
+      - name: card_number
+        description: "Número do cartão (deve ser mascarado em produção)"
+
+  - name: stg_sales__specialoffer
+    description: "Staging model para ofertas especiais"
+    columns:
+      - name: special_offer_id
+        description: "ID único da oferta"
+        tests:
+          - unique
+          - not_null
+      - name: offer_description
+        description: "Descrição da oferta"
+      - name: discount_pct
+        description: "Percentual de desconto"
+      - name: offer_type
+        description: "Tipo da oferta"
+      - name: offer_category
+        description: "Categoria da oferta"
+
+  - name: stg_sales__store
+    description: "Staging model para lojas"
+    columns:
+      - name: store_id
+        description: "ID único da loja (businessentityid)"
+        tests:
+          - unique
+          - not_null
+      - name: store_name
+        description: "Nome da loja"
+      - name: salesperson_id
+        description: "ID do vendedor responsável"
+
+  - name: stg_production__product
+    description: "Staging model para produtos"
+    columns:
+      - name: product_id
+        description: "ID único do produto"
+        tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Nome do produto"
+      - name: product_number
+        description: "Número do produto"
+      - name: product_subcategory_id
+        description: "ID da subcategoria"
+      - name: list_price
+        description: "Preço de lista"
+      - name: standard_cost
+        description: "Custo padrão"
+
+  - name: stg_production__productcategory
+    description: "Staging model para categorias de produtos"
+    columns:
+      - name: product_category_id
+        description: "ID único da categoria"
+        tests:
+          - unique
+          - not_null
+      - name: product_category_name
+        description: "Nome da categoria"
+
+  - name: stg_production__productsubcategory
+    description: "Staging model para subcategorias de produtos"
+    columns:
+      - name: product_subcategory_id
+        description: "ID único da subcategoria"
+        tests:
+          - unique
+          - not_null
+      - name: product_category_id
+        description: "ID da categoria pai"
+        tests:
+          - not_null
+      - name: product_subcategory_name
+        description: "Nome da subcategoria"
+
+  - name: stg_production__productmodel
+    description: "Staging model para modelos de produtos"
+    columns:
+      - name: product_model_id
+        description: "ID único do modelo"
+        tests:
+          - unique
+          - not_null
+      - name: product_model_name
+        description: "Nome do modelo"
+
+  - name: stg_person__person
+    description: "Staging model para pessoas"
+    columns:
+      - name: person_id
+        description: "ID único da pessoa (businessentityid)"
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: "Primeiro nome"
+      - name: last_name
+        description: "Sobrenome"
+      - name: person_type
+        description: "Tipo de pessoa (IN, SC, SP, etc.)"
+
+  - name: stg_person__address
+    description: "Staging model para endereços"
+    columns:
+      - name: address_id
+        description: "ID único do endereço"
+        tests:
+          - unique
+          - not_null
+      - name: address_line1
+        description: "Linha 1 do endereço"
+      - name: city
+        description: "Cidade"
+      - name: state_province_id
+        description: "ID do estado/província"
+      - name: postal_code
+        description: "Código postal"
+
+  - name: stg_person__stateprovince
+    description: "Staging model para estados/províncias"
+    columns:
+      - name: state_province_id
+        description: "ID único do estado/província"
+        tests:
+          - unique
+          - not_null
+      - name: state_province_code
+        description: "Código do estado/província"
+      - name: state_province_name
+        description: "Nome do estado/província"
+      - name: country_region_code
+        description: "Código do país/região"
+
+  - name: stg_person__countryregion
+    description: "Staging model para países/regiões"
+    columns:
+      - name: country_region_code
+        description: "Código único do país/região"
+        tests:
+          - unique
+          - not_null
+      - name: country_region_name
+        description: "Nome do país/região"
+
+  - name: stg_purchasing__shipmethod
+    description: "Staging model para métodos de envio"
+    columns:
+      - name: ship_method_id
+        description: "ID único do método de envio"
+        tests:
+          - unique
+          - not_null
+      - name: ship_method_name
+        description: "Nome do método de envio"
+      - name: ship_base
+        description: "Custo base do envio"
+      - name: ship_rate
+        description: "Taxa do envio"
+

@@ -1,0 +1,144 @@
+version: 2
+
+sources:
+  - name: adventure_works
+    description: "Dados brutos da Adventure Works"
+    database: fea_academy
+    schema: adventure_works
+
+    tables:
+      # Sales
+      - name: sales_salesorderheader
+        description: "Cabeçalho dos pedidos de venda"
+      - name: sales_salesorderdetail
+        description: "Itens dos pedidos de venda"
+      - name: sales_customer
+        description: "Clientes (pessoas ou lojas)"
+      - name: sales_salesperson
+        description: "Vendedores"
+      - name: sales_salesterritory
+        description: "Territórios de vendas"
+      - name: sales_salesreason
+        description: "Motivos de venda"
+      - name: sales_salesorderheadersalesreason
+        description: "Relação N:N entre pedidos e motivos"
+      - name: sales_creditcard
+        description: "Cartões de crédito"
+      - name: sales_specialoffer
+        description: "Ofertas especiais"
+      - name: sales_specialofferproduct
+        description: "Relação entre ofertas e produtos"
+      - name: sales_store
+        description: "Lojas"
+      - name: sales_currency
+        description: "Moedas"
+      - name: sales_currencyrate
+        description: "Taxas de câmbio"
+      - name: sales_countryregioncurrency
+        description: "Moedas por país/região"
+      - name: sales_personcreditcard
+        description: "Relação entre pessoas e cartões"
+      - name: sales_salestaxrate
+        description: "Taxas de imposto"
+      - name: sales_salesterritoryhistory
+        description: "Histórico de territórios"
+      - name: sales_salespersonquotahistory
+        description: "Histórico de quotas de vendedores"
+      - name: sales_shoppingcartitem
+        description: "Itens do carrinho de compras"
+
+      # Production
+      - name: production_product
+        description: "Produtos"
+      - name: production_productcategory
+        description: "Categorias de produtos"
+      - name: production_productsubcategory
+        description: "Subcategorias de produtos"
+      - name: production_productmodel
+        description: "Modelos de produtos"
+      - name: production_productdescription
+        description: "Descrições de produtos"
+      - name: production_productmodelproductdescriptionculture
+        description: "Relação modelo-descrição-cultura"
+      - name: production_productinventory
+        description: "Inventário de produtos"
+      - name: production_productlistpricehistory
+        description: "Histórico de preços de lista"
+      - name: production_productcosthistory
+        description: "Histórico de custos"
+      - name: production_productreview
+        description: "Avaliações de produtos"
+      - name: production_productmodelillustration
+        description: "Ilustrações de modelos"
+      - name: production_location
+        description: "Localizações de produção"
+      - name: production_workorder
+        description: "Ordens de trabalho"
+      - name: production_workorderrouting
+        description: "Roteamento de ordens de trabalho"
+      - name: production_transactionhistory
+        description: "Histórico de transações"
+      - name: production_billofmaterials
+        description: "Lista de materiais"
+      - name: production_unitmeasure
+        description: "Unidades de medida"
+      - name: production_scrapreason
+        description: "Motivos de descarte"
+      - name: production_document
+        description: "Documentos de produção"
+      - name: production_culture
+        description: "Culturas/idiomas"
+
+      # Person
+      - name: person_person
+        description: "Pessoas"
+      - name: person_address
+        description: "Endereços"
+      - name: person_stateprovince
+        description: "Estados/Províncias"
+      - name: person_countryregion
+        description: "Países/Regiões"
+      - name: person_businessentity
+        description: "Entidades de negócio"
+      - name: person_businessentityaddress
+        description: "Relação entre entidades e endereços"
+      - name: person_addresstype
+        description: "Tipos de endereço"
+      - name: person_emailaddress
+        description: "Endereços de email"
+      - name: person_personphone
+        description: "Telefones de pessoas"
+      - name: person_phonenumbertype
+        description: "Tipos de número de telefone"
+      - name: person_password
+        description: "Senhas"
+      - name: person_businessentitycontact
+        description: "Contatos de entidades"
+      - name: person_contacttype
+        description: "Tipos de contato"
+
+      # Purchasing
+      - name: purchasing_shipmethod
+        description: "Métodos de envio"
+      - name: purchasing_vendor
+        description: "Fornecedores"
+      - name: purchasing_purchaseorderheader
+        description: "Cabeçalho de ordens de compra"
+      - name: purchasing_purchaseorderdetail
+        description: "Itens de ordens de compra"
+      - name: purchasing_productvendor
+        description: "Relação entre produtos e fornecedores"
+
+      # Human Resources
+      - name: humanresources_employee
+        description: "Funcionários"
+      - name: humanresources_department
+        description: "Departamentos"
+      - name: humanresources_employeedepartmenthistory
+        description: "Histórico de departamentos de funcionários"
+      - name: humanresources_employeepayhistory
+        description: "Histórico de pagamentos"
+      - name: humanresources_jobcandidate
+        description: "Candidatos a vagas"
+      - name: humanresources_shift
+        description: "Turnos"
