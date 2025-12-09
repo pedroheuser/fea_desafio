@@ -5,6 +5,29 @@ models:
     description: |
       Tabela fato principal de vendas com grão de item do pedido.
       Uma linha representa um item específico de um pedido de venda.
+      
+      **Grão:** sales_order_detail_id (item do pedido)
+      
+      **Métricas:**
+      - order_qty: Quantidade pedida
+      - unit_price: Preço unitário
+      - unit_price_discount: Desconto aplicado
+      - line_total: Total da linha (calculado: order_qty * unit_price * (1 - unit_price_discount))
+      - order_subtotal: Subtotal do pedido (desnormalizado do header)
+      - order_tax_amt: Imposto do pedido
+      - order_freight: Frete do pedido
+      - order_total_due: Total devido do pedido
+      
+      **Dimensões relacionadas:**
+      - dim_produtos (product_id)
+      - dim_clientes (customer_id)
+      - dim_vendedores (salesperson_id, nullable)
+      - dim_territorios (territory_id)
+      - dim_cartoes (creditcard_id, nullable)
+      - dim_metodo_envio (ship_method_id)
+      - dim_locais (bill_to_address_id, ship_to_address_id)
+      - dim_datas (order_date_id, due_date_id, ship_date_id)
+      - dim_ofertas (special_offer_id, nullable)
     columns:
       - name: sales_order_detail_id
         description: "ID único do item do pedido (chave primária)"
@@ -110,30 +133,43 @@ models:
               to: ref('dim_ofertas')
               field: special_offer_id
       - name: order_subtotal
-        description: "Subtotal do pedido (desnormalizado do header)"
+        description: "Subtotal do pedido (desnormalizado do header, soma de todos os itens do pedido)"
       - name: order_tax_amt
-        description: "Imposto do pedido"
+        description: "Valor do imposto do pedido (desnormalizado do header)"
       - name: order_freight
-        description: "Frete do pedido"
+        description: "Valor do frete do pedido (desnormalizado do header)"
       - name: order_total_due
-        description: "Total devido do pedido"
+        description: "Total devido do pedido (subtotal + imposto + frete, desnormalizado do header)"
       - name: order_status
-        description: "Status do pedido (1-5)"
+        description: "Status do pedido (1-5): 1=Em processamento, 2=Aprovado, 3=Em espera, 4=Rejeitado, 5=Enviado, 6=Cancelado"
       - name: online_order_flag
-        description: "Flag indicando se é pedido online"
+        description: "Flag booleana indicando se é pedido online (true) ou loja física (false)"
+      - name: online_order_flag_formatted
+        description: "Flag formatada como string: 'Online' ou 'Loja'"
+      - name: carrier_tracking_number
+        description: "Número de rastreamento da transportadora (nullable)"
+      - name: revision_number
+        description: "Número de revisão do pedido"
 
   - name: fct_vendas_motivos
     description: |
-      Tabela fato para tratar relação N:N entre pedidos e motivos de venda.
-      Um pedido pode ter múltiplos motivos.
-      Grão: (sales_order_id, sales_reason_id)
+      Tabela fato auxiliar (bridge table) para tratar relação N:N entre pedidos e motivos de venda.
+      Um pedido pode ter múltiplos motivos (ex: Price + Quality + Review).
+      
+      **Grão:** (sales_order_id, sales_reason_id)
+      
+      **Uso:** Para análises de motivos de venda, juntar esta tabela com fct_vendas via sales_order_id.
+      
+      **Exemplo de análise:**
+      - Quantos pedidos foram feitos por motivo "Price"?
+      - Quais são os motivos mais comuns combinados?
     columns:
       - name: sales_order_id
-        description: "ID do pedido de venda"
+        description: "ID do pedido de venda (FK → fct_vendas.sales_order_id)"
         tests:
           - not_null
       - name: sales_reason_id
-        description: "ID do motivo de venda (FK → dim_motivo_venda)"
+        description: "ID do motivo de venda (FK → dim_motivo_venda.sales_reason_id)"
         tests:
           - not_null
           - relationships:

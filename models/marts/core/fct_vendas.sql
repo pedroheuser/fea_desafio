@@ -110,6 +110,7 @@ with
             , odh.order_total_due
             , odh.revision_number
             , odh.online_order_flag
+            , case when odh.online_order_flag = true then 'Online' else 'Loja' end as online_order_flag_formatted
             , odh.purchase_order_number
             , odh.account_number
             , odh.order_status
@@ -143,6 +144,7 @@ with
             , fwc.order_total_due
             , fwc.revision_number
             , fwc.online_order_flag
+            , fwc.online_order_flag_formatted
             , fwc.purchase_order_number
             , fwc.account_number
             , fwc.order_status

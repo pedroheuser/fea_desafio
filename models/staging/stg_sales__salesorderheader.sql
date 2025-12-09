@@ -12,7 +12,7 @@ with source as (
         , cast(orderdate as date) as order_date
         , cast(duedate as date) as due_date
         , cast(shipdate as date) as ship_date
-        , cast(status as int) as order_status
+        , cast(status as string) as order_status
         , cast(onlineorderflag as boolean) as online_order_flag
         , purchaseordernumber as purchase_order_number
         , accountnumber as account_number

@@ -19,7 +19,9 @@ with
             , dayofyear(date_actual) as day_of_year
             , weekofyear(date_actual) as week_of_year
             , month(date_actual) as month_number
-            , date_format(date_actual, 'MMMM') as month_name
+            , date_format(date_actual, 'MMM') as month_abbreviated_name
+            , date_format(date_actual, 'MMMM') as month_full_name
+            , date_format(date_actual, 'MMM/yy') as month_year
             , quarter(date_actual) as quarter_number
             , concat('Q', quarter(date_actual)) as quarter_name
             , year(date_actual) as year_number

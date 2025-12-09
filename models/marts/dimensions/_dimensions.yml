@@ -2,162 +2,358 @@ version: 2
 
 models:
   - name: dim_produtos
-    description: "Dimensão de produtos com hierarquia completa (categoria → subcategoria → produto)"
+    description: |
+      Dimensão de produtos com hierarquia completa (categoria → subcategoria → produto).
+      Inclui informações de preço, custo, estoque e características físicas do produto.
     columns:
       - name: product_id
-        description: "ID único do produto"
+        description: "ID único do produto (chave primária)"
         tests:
           - unique
           - not_null
+      - name: product_number
+        description: "Número único do produto (código SKU)"
       - name: product_name
         description: "Nome do produto"
-      - name: product_category_name
-        description: "Nome da categoria (ex: Bikes, Components)"
+        tests:
+          - not_null
+      - name: product_color
+        description: "Cor do produto (nullable)"
+      - name: product_size
+        description: "Tamanho do produto (nullable)"
+      - name: size_unit_measure_code
+        description: "Código da unidade de medida do tamanho (nullable)"
+      - name: product_weight
+        description: "Peso do produto (nullable)"
+      - name: weight_unit_measure_code
+        description: "Código da unidade de medida do peso (nullable)"
+      - name: product_line
+        description: "Linha do produto (R, M, T, S) - Road, Mountain, Touring, Standard"
+      - name: product_class
+        description: "Classe do produto (H, M, L) - High, Medium, Low"
+      - name: product_style
+        description: "Estilo do produto (U, W, M) - Universal, Womens, Mens"
+      - name: product_subcategory_id
+        description: "ID da subcategoria (FK, nullable)"
       - name: product_subcategory_name
-        description: "Nome da subcategoria (ex: Mountain Bikes, Road Bikes)"
+        description: "Nome da subcategoria (ex: Mountain Bikes, Road Bikes). 'Sem Subcategoria' se null"
+      - name: product_category_id
+        description: "ID da categoria (FK, -1 se null)"
+      - name: product_category_name
+        description: "Nome da categoria (ex: Bikes, Components, Clothing). 'Sem Categoria' se null"
+      - name: product_model_id
+        description: "ID do modelo do produto (FK, nullable)"
+      - name: product_model_name
+        description: "Nome do modelo do produto. 'Sem Modelo' se null"
+      - name: standard_cost
+        description: "Custo padrão do produto (decimal)"
       - name: list_price
-        description: "Preço de lista do produto"
+        description: "Preço de lista do produto (decimal)"
+        tests:
+          - not_null
+      - name: safety_stock_level
+        description: "Nível de estoque de segurança"
+      - name: reorder_point
+        description: "Ponto de reordenação"
+      - name: days_to_manufacture
+        description: "Dias para fabricação"
+      - name: sell_start_date
+        description: "Data de início de venda"
+      - name: sell_end_date
+        description: "Data de fim de venda (nullable)"
+      - name: discontinued_date
+        description: "Data de descontinuação (nullable)"
+      - name: make_flag
+        description: "Flag indicando se o produto é fabricado (true) ou comprado (false)"
+      - name: finished_goods_flag
+        description: "Flag indicando se é produto acabado (true) ou componente (false)"
 
   - name: dim_clientes
-    description: "Dimensão de clientes (pessoas ou lojas)"
+    description: |
+      Dimensão de clientes (pessoas ou lojas).
+      Trata dois tipos de clientes: pessoas físicas (person_id) e lojas (store_id).
+      Inclui informações consolidadas de território e nome unificado.
     columns:
       - name: customer_id
-        description: "ID único do cliente"
+        description: "ID único do cliente (chave primária)"
         tests:
           - unique
           - not_null
       - name: customer_type
-        description: "Tipo do cliente: 'Pessoa' ou 'Loja'"
+        description: "Tipo do cliente: 'Pessoa', 'Loja' ou 'Desconhecido'"
         tests:
+          - not_null
           - accepted_values:
               values: ['Pessoa', 'Loja', 'Desconhecido']
       - name: customer_name
-        description: "Nome do cliente (pessoa ou loja)"
+        description: "Nome do cliente unificado (nome completo para pessoa, nome da loja para loja)"
+        tests:
+          - not_null
+      - name: person_id
+        description: "ID da pessoa (nullable, apenas para clientes tipo 'Pessoa')"
+      - name: store_id
+        description: "ID da loja (nullable, apenas para clientes tipo 'Loja')"
       - name: territory_id
-        description: "ID do território"
+        description: "ID do território de vendas"
+        tests:
+          - not_null
+      - name: territory_name
+        description: "Nome do território. 'Sem Território' se null"
+      - name: country_region_code
+        description: "Código do país/região do território. 'N/A' se null"
+      - name: territory_group
+        description: "Grupo do território (North America, Europe, Pacific). 'N/A' se null"
+      - name: first_name
+        description: "Primeiro nome (nullable, apenas para clientes pessoa)"
+      - name: middle_name
+        description: "Nome do meio (nullable, apenas para clientes pessoa)"
+      - name: last_name
+        description: "Sobrenome (nullable, apenas para clientes pessoa)"
+      - name: title
+        description: "Título (Mr., Ms., etc.) (nullable, apenas para clientes pessoa)"
+      - name: suffix
+        description: "Sufixo (Jr., Sr., etc.) (nullable, apenas para clientes pessoa)"
+      - name: email_promotion
+        description: "Flag de promoção por email (0, 1, 2) (nullable, apenas para clientes pessoa)"
+      - name: store_name
+        description: "Nome da loja (nullable, apenas para clientes loja)"
+      - name: store_salesperson_id
+        description: "ID do vendedor responsável pela loja (nullable, apenas para clientes loja)"
 
   - name: dim_vendedores
-    description: "Dimensão de vendedores com informações de performance"
+    description: |
+      Dimensão de vendedores com informações de performance e território.
+      Inclui métricas de vendas YTD e do ano anterior para análise de performance.
     columns:
       - name: salesperson_id
-        description: "ID único do vendedor"
+        description: "ID único do vendedor (chave primária, FK para person)"
         tests:
           - unique
           - not_null
       - name: salesperson_name
-        description: "Nome completo do vendedor"
+        description: "Nome completo do vendedor (primeiro nome + sobrenome)"
+        tests:
+          - not_null
       - name: territory_id
-        description: "ID do território"
+        description: "ID do território de vendas (nullable)"
+      - name: territory_name
+        description: "Nome do território. 'Sem Território' se null"
       - name: sales_quota
-        description: "Quota de vendas"
+        description: "Quota de vendas do vendedor (decimal, nullable)"
+      - name: bonus
+        description: "Bônus do vendedor (decimal, nullable)"
       - name: commission_pct
-        description: "Percentual de comissão"
+        description: "Percentual de comissão (decimal, nullable)"
+      - name: sales_ytd
+        description: "Vendas do ano até a data (Year To Date) (decimal, nullable)"
+      - name: sales_last_year
+        description: "Vendas do ano anterior (decimal, nullable)"
 
   - name: dim_territorios
-    description: "Dimensão de territórios de vendas"
+    description: |
+      Dimensão de territórios de vendas com informações regionais e métricas consolidadas.
+      Inclui vendas e custos YTD e do ano anterior para análise regional.
     columns:
       - name: territory_id
-        description: "ID único do território"
+        description: "ID único do território (chave primária)"
         tests:
           - unique
           - not_null
       - name: territory_name
         description: "Nome do território"
+        tests:
+          - not_null
+      - name: country_region_code
+        description: "Código do país/região (FK para person_countryregion)"
+      - name: country_region_name
+        description: "Nome do país/região. 'Desconhecido' se null"
       - name: territory_group
         description: "Grupo do território (North America, Europe, Pacific)"
-      - name: country_region_name
-        description: "Nome do país/região"
+      - name: sales_ytd
+        description: "Vendas do território no ano até a data (Year To Date) (decimal, nullable)"
+      - name: sales_last_year
+        description: "Vendas do território no ano anterior (decimal, nullable)"
+      - name: cost_ytd
+        description: "Custos do território no ano até a data (decimal, nullable)"
+      - name: cost_last_year
+        description: "Custos do território no ano anterior (decimal, nullable)"
 
   - name: dim_locais
-    description: "Dimensão de endereços (cobrança e entrega)"
+    description: |
+      Dimensão de endereços (cobrança e entrega).
+      Consolida informações de endereço, cidade, estado/província e país/região.
+      Usada tanto para endereços de cobrança quanto de entrega.
     columns:
       - name: address_id
-        description: "ID único do endereço"
+        description: "ID único do endereço (chave primária)"
         tests:
           - unique
           - not_null
+      - name: address_line1
+        description: "Linha 1 do endereço (rua e número)"
+      - name: address_line2
+        description: "Linha 2 do endereço (complemento, nullable)"
       - name: city
         description: "Cidade"
+        tests:
+          - not_null
+      - name: state_province_id
+        description: "ID do estado/província (FK)"
+      - name: state_province_code
+        description: "Código do estado/província (ex: CA, NY). 'N/A' se null"
       - name: state_province_name
-        description: "Nome do estado/província"
+        description: "Nome do estado/província. 'Desconhecido' se null"
+      - name: country_region_code
+        description: "Código do país/região. 'N/A' se null"
       - name: country_region_name
-        description: "Nome do país/região"
+        description: "Nome do país/região. 'Desconhecido' se null"
+      - name: postal_code
+        description: "Código postal"
 
   - name: dim_motivo_venda
-    description: "Dimensão de motivos de venda"
+    description: |
+      Dimensão de motivos de venda.
+      Um pedido pode ter múltiplos motivos (relação N:N tratada via fct_vendas_motivos).
     columns:
       - name: sales_reason_id
-        description: "ID único do motivo"
+        description: "ID único do motivo (chave primária)"
         tests:
           - unique
           - not_null
       - name: sales_reason_name
-        description: "Nome do motivo"
+        description: "Nome do motivo (ex: Price, Quality, Review)"
+        tests:
+          - not_null
       - name: sales_reason_type
         description: "Tipo do motivo (Other, Promotion, Marketing)"
+        tests:
+          - not_null
 
   - name: dim_cartoes
-    description: "Dimensão de cartões de crédito (número mascarado)"
+    description: |
+      Dimensão de cartões de crédito com número mascarado para segurança.
+      Exibe apenas os últimos 4 dígitos no formato ****-****-****-1234.
     columns:
       - name: creditcard_id
-        description: "ID único do cartão"
+        description: "ID único do cartão (chave primária)"
         tests:
           - unique
           - not_null
       - name: card_type
-        description: "Tipo do cartão"
+        description: "Tipo do cartão (Vista, SuperiorCard, Distinguish, etc.)"
       - name: card_number_masked
-        description: "Número do cartão mascarado (últimos 4 dígitos)"
+        description: "Número do cartão mascarado no formato ****-****-****-XXXX (últimos 4 dígitos)"
+      - name: exp_month
+        description: "Mês de expiração (nullable)"
+      - name: exp_year
+        description: "Ano de expiração (nullable)"
 
   - name: dim_metodo_envio
-    description: "Dimensão de métodos de envio"
+    description: |
+      Dimensão de métodos de envio com informações de custo e taxa.
+      Usada para análise de custos de frete e performance de métodos de entrega.
     columns:
       - name: ship_method_id
-        description: "ID único do método de envio"
+        description: "ID único do método de envio (chave primária)"
         tests:
           - unique
           - not_null
       - name: ship_method_name
-        description: "Nome do método de envio"
+        description: "Nome do método de envio (ex: CARGO TRANSPORT 5, OVERSEAS DELUXE)"
+        tests:
+          - not_null
       - name: ship_base
-        description: "Custo base do envio"
+        description: "Custo base do envio (decimal)"
+      - name: ship_rate
+        description: "Taxa do envio (decimal)"
 
   - name: dim_ofertas
-    description: "Dimensão de ofertas especiais e promoções"
+    description: |
+      Dimensão de ofertas especiais e promoções.
+      Inclui informações sobre descontos, tipos, categorias e períodos de validade.
     columns:
       - name: special_offer_id
-        description: "ID único da oferta"
+        description: "ID único da oferta (chave primária)"
         tests:
           - unique
           - not_null
       - name: offer_description
-        description: "Descrição da oferta"
+        description: "Descrição da oferta/promoção"
       - name: discount_pct
-        description: "Percentual de desconto"
+        description: "Percentual de desconto (decimal, ex: 0.10 = 10%)"
+        tests:
+          - not_null
       - name: offer_type
-        description: "Tipo da oferta"
+        description: "Tipo da oferta (ex: Discontinued Product, No Discount)"
+      - name: offer_category
+        description: "Categoria da oferta (ex: Reseller, Customer)"
+      - name: start_date
+        description: "Data de início da oferta"
+        tests:
+          - not_null
+      - name: end_date
+        description: "Data de fim da oferta"
+        tests:
+          - not_null
+      - name: min_qty
+        description: "Quantidade mínima para aplicar a oferta"
+      - name: max_qty
+        description: "Quantidade máxima para aplicar a oferta (nullable)"
 
   - name: dim_datas
-    description: "Dimensão de calendário (datas de 2008 a 2014)"
+    description: |
+      Dimensão de calendário (datas de 2008-01-01 a 2014-12-31).
+      Inclui atributos temporais para análises por período (dia, semana, mês, trimestre, ano).
+      Usada para análises temporais nas tabelas fato.
     columns:
       - name: date_id
-        description: "ID da data no formato YYYYMMDD"
+        description: "ID da data no formato YYYYMMDD (ex: 20110115) - chave primária"
         tests:
           - unique
           - not_null
       - name: date_actual
-        description: "Data atual"
+        description: "Data atual (tipo date)"
         tests:
           - unique
           - not_null
-      - name: year_number
-        description: "Ano"
-      - name: month_number
-        description: "Mês (1-12)"
-      - name: quarter_number
-        description: "Trimestre (1-4)"
       - name: day_of_week
-        description: "Dia da semana (1=Domingo, 7=Sábado)"
+        description: "Dia da semana numérico (1=Domingo, 2=Segunda, ..., 7=Sábado)"
+      - name: day_of_week_name
+        description: "Nome do dia da semana (ex: Monday, Tuesday)"
+      - name: day_of_month
+        description: "Dia do mês (1-31)"
+      - name: day_of_year
+        description: "Dia do ano (1-365/366)"
+      - name: week_of_year
+        description: "Semana do ano (1-52/53)"
+      - name: month_number
+        description: "Número do mês (1-12)"
+        tests:
+          - not_null
+      - name: month_abbreviated_name
+        description: "Nome abreviado do mês (ex: Jan, Feb, Mar)"
+      - name: month_full_name
+        description: "Nome completo do mês (ex: January, February)"
+      - name: month_year
+        description: "Mês/Ano no formato MMM/yy (ex: Jan/11)"
+      - name: quarter_number
+        description: "Número do trimestre (1-4)"
+        tests:
+          - not_null
+      - name: quarter_name
+        description: "Nome do trimestre (ex: Q1, Q2, Q3, Q4)"
+      - name: year_number
+        description: "Ano (2008-2014)"
+        tests:
+          - not_null
       - name: is_weekend
-        description: "Flag indicando se é fim de semana"
+        description: "Flag booleana indicando se é fim de semana (true se Sábado ou Domingo)"
+        tests:
+          - not_null
+      - name: is_holiday
+        description: "Flag booleana indicando se é feriado (sempre false no modelo atual)"
+      - name: fiscal_year
+        description: "Ano fiscal (igual ao ano civil no modelo atual)"
+      - name: fiscal_quarter
+        description: "Trimestre fiscal (igual ao trimestre civil no modelo atual)"
 

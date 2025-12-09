@@ -10,26 +10,151 @@ sources:
       # Sales
       - name: sales_salesorderheader
         description: "Cabeçalho dos pedidos de venda"
+        columns:
+          - name: salesorderid
+            description: "ID único do pedido de venda (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: customerid
+            description: "ID do cliente (FK)"
+            tests:
+              - not_null
+          - name: orderdate
+            description: "Data do pedido"
+            tests:
+              - not_null
+          - name: totaldue
+            description: "Total devido do pedido"
+            tests:
+              - not_null
       - name: sales_salesorderdetail
         description: "Itens dos pedidos de venda"
+        columns:
+          - name: salesorderid
+            description: "ID do pedido de venda (FK)"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('adventure_works', 'sales_salesorderheader')
+                  field: salesorderid
+          - name: salesorderdetailid
+            description: "ID único do item do pedido (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: productid
+            description: "ID do produto (FK)"
+            tests:
+              - not_null
+          - name: orderqty
+            description: "Quantidade pedida"
+            tests:
+              - not_null
+          - name: unitprice
+            description: "Preço unitário"
+            tests:
+              - not_null
       - name: sales_customer
         description: "Clientes (pessoas ou lojas)"
+        columns:
+          - name: customerid
+            description: "ID único do cliente (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: territoryid
+            description: "ID do território (FK)"
+            tests:
+              - not_null
       - name: sales_salesperson
         description: "Vendedores"
+        columns:
+          - name: businessentityid
+            description: "ID único do vendedor (chave primária, FK para person)"
+            tests:
+              - unique
+              - not_null
       - name: sales_salesterritory
         description: "Territórios de vendas"
+        columns:
+          - name: territoryid
+            description: "ID único do território (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nome do território"
+            tests:
+              - not_null
+          - name: countryregioncode
+            description: "Código do país/região (FK)"
+            tests:
+              - not_null
       - name: sales_salesreason
         description: "Motivos de venda"
+        columns:
+          - name: salesreasonid
+            description: "ID único do motivo (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nome do motivo"
+            tests:
+              - not_null
       - name: sales_salesorderheadersalesreason
         description: "Relação N:N entre pedidos e motivos"
+        columns:
+          - name: salesorderid
+            description: "ID do pedido (FK)"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('adventure_works', 'sales_salesorderheader')
+                  field: salesorderid
+          - name: salesreasonid
+            description: "ID do motivo (FK)"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('adventure_works', 'sales_salesreason')
+                  field: salesreasonid
       - name: sales_creditcard
         description: "Cartões de crédito"
+        columns:
+          - name: creditcardid
+            description: "ID único do cartão (chave primária)"
+            tests:
+              - unique
+              - not_null
       - name: sales_specialoffer
         description: "Ofertas especiais"
+        columns:
+          - name: specialofferid
+            description: "ID único da oferta (chave primária)"
+            tests:
+              - unique
+              - not_null
       - name: sales_specialofferproduct
         description: "Relação entre ofertas e produtos"
+        columns:
+          - name: specialofferid
+            description: "ID da oferta (FK)"
+            tests:
+              - not_null
+          - name: productid
+            description: "ID do produto (FK)"
+            tests:
+              - not_null
       - name: sales_store
         description: "Lojas"
+        columns:
+          - name: businessentityid
+            description: "ID único da loja (chave primária, FK para person)"
+            tests:
+              - unique
+              - not_null
       - name: sales_currency
         description: "Moedas"
       - name: sales_currencyrate
@@ -47,15 +172,53 @@ sources:
       - name: sales_shoppingcartitem
         description: "Itens do carrinho de compras"
 
-      # Production
       - name: production_product
         description: "Produtos"
+        columns:
+          - name: productid
+            description: "ID único do produto (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nome do produto"
+            tests:
+              - not_null
       - name: production_productcategory
         description: "Categorias de produtos"
+        columns:
+          - name: productcategoryid
+            description: "ID único da categoria (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nome da categoria"
+            tests:
+              - not_null
       - name: production_productsubcategory
         description: "Subcategorias de produtos"
+        columns:
+          - name: productsubcategoryid
+            description: "ID único da subcategoria (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: productcategoryid
+            description: "ID da categoria pai (FK)"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('adventure_works', 'production_productcategory')
+                  field: productcategoryid
       - name: production_productmodel
         description: "Modelos de produtos"
+        columns:
+          - name: productmodelid
+            description: "ID único do modelo (chave primária)"
+            tests:
+              - unique
+              - not_null
       - name: production_productdescription
         description: "Descrições de produtos"
       - name: production_productmodelproductdescriptionculture
@@ -89,15 +252,53 @@ sources:
       - name: production_culture
         description: "Culturas/idiomas"
 
-      # Person
       - name: person_person
         description: "Pessoas"
+        columns:
+          - name: businessentityid
+            description: "ID único da pessoa (chave primária)"
+            tests:
+              - unique
+              - not_null
       - name: person_address
         description: "Endereços"
+        columns:
+          - name: addressid
+            description: "ID único do endereço (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: stateprovinceid
+            description: "ID do estado/província (FK)"
+            tests:
+              - not_null
       - name: person_stateprovince
         description: "Estados/Províncias"
+        columns:
+          - name: stateprovinceid
+            description: "ID único do estado/província (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: countryregioncode
+            description: "Código do país/região (FK)"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('adventure_works', 'person_countryregion')
+                  field: countryregioncode
       - name: person_countryregion
         description: "Países/Regiões"
+        columns:
+          - name: countryregioncode
+            description: "Código único do país/região (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nome do país/região"
+            tests:
+              - not_null
       - name: person_businessentity
         description: "Entidades de negócio"
       - name: person_businessentityaddress
@@ -117,9 +318,18 @@ sources:
       - name: person_contacttype
         description: "Tipos de contato"
 
-      # Purchasing
       - name: purchasing_shipmethod
         description: "Métodos de envio"
+        columns:
+          - name: shipmethodid
+            description: "ID único do método de envio (chave primária)"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Nome do método de envio"
+            tests:
+              - not_null
       - name: purchasing_vendor
         description: "Fornecedores"
       - name: purchasing_purchaseorderheader
@@ -129,7 +339,6 @@ sources:
       - name: purchasing_productvendor
         description: "Relação entre produtos e fornecedores"
 
-      # Human Resources
       - name: humanresources_employee
         description: "Funcionários"
       - name: humanresources_department
